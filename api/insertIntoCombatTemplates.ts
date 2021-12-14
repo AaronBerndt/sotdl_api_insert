@@ -11,7 +11,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       return response.status(200).end();
     }
 
-    console.log(request.body);
     const { name, monstersInCombat } = request.body.data;
 
     const difficulty = sum(
@@ -19,9 +18,16 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         return monsters.difficulty * monsters.amount;
       })
     );
+
+    const filteredData = monstersInCombat.map((monsters) => ({
+      _id: monsters._ud,
+      name: monsters.name,
+      amount: monsters.amount,
+    }));
+
     const data = await insertIntoCollection("combatTemplates", {
       name,
-      monstersInCombat,
+      monstersInCombat: filteredData,
       difficulty,
     });
 

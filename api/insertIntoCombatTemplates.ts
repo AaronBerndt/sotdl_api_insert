@@ -1,4 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
+import { sum } from "lodash";
 import microCors from "micro-cors";
 import { insertIntoCollection } from "../utilities/MongoUtils";
 
@@ -10,10 +11,23 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       return response.status(200).end();
     }
 
-    const { documents } = request.body.data;
-    const data = await insertIntoCollection("combatTemplates", documents);
+    console.log(request.body);
+    const { name, monstersInCombat } = request.body.data;
+
+    const difficulty = sum(
+      monstersInCombat.map((monsters) => {
+        return monsters.difficulty * monsters.amount;
+      })
+    );
+    const data = await insertIntoCollection("combatTemplates", {
+      name,
+      monstersInCombat,
+      difficulty,
+    });
+
     response.status(200).send(data);
   } catch (e) {
+    console.log(e);
     response.status(504).send(e);
   }
 };

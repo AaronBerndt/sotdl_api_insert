@@ -43,3 +43,19 @@ export async function insertIntoCollection(
     throw e;
   }
 }
+
+export async function fetchCollection(collectionName: string, filters?: any) {
+  try {
+    if (uri === undefined) {
+      throw "URI is undefined";
+    }
+
+    const database = await connectToDatabase();
+    const collection = database.collection(collectionName);
+    const data = await collection.find(filters ? filters : {}).toArray();
+
+    return data;
+  } catch (e) {
+    throw e;
+  }
+}

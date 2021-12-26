@@ -28,6 +28,11 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             monsterId: monsterTemplate._id,
             name: `${monsterTemplate.name} ${key}`,
             damage: 0,
+            injured: false,
+            temporaryEffects: [],
+            expended: [],
+            overrides: [],
+            afflictions: [],
           }))
         )
         .flat(),

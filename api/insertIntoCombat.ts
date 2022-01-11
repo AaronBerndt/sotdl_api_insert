@@ -33,6 +33,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             expended: [],
             overrides: [],
             afflictions: [],
+            turnType: "Monster Fast",
           }))
         )
         .flat(),

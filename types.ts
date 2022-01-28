@@ -1,5 +1,8 @@
 export type Character = {
   name: string;
+  partyId: string;
+  turnType: string;
+  activeCombat: string;
   level: number;
   ancestry: string;
   novicePath: string;

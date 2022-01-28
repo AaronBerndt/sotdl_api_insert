@@ -17,6 +17,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     const newCharacterData: Character = {
       name: documents.name,
       level: documents.level,
+      partyId: documents.partyId,
+      turnType: "Fast",
+      activeCombat: "",
       ancestry: documents.ancestry,
       novicePath: documents.novicePath,
       expertPath: documents.expertPath,

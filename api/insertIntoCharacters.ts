@@ -45,8 +45,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           .map(({ name }) => name),
         currency: documents.currency,
       },
-      languages: [],
-      professions: [],
+      languages: documents.languages,
+      professions: documents.professions,
       details: [],
       choices: documents.choices,
       characterState: {

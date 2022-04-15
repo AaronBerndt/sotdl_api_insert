@@ -283,7 +283,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       },
     };
 
-    // const data = await insertIntoCollection("characters", newCharacterData);
+    const data = await insertIntoCollection("characters", newCharacterData);
     response.status(200).send(newCharacterData);
   } catch (e) {
     console.log(e);

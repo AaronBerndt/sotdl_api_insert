@@ -3,7 +3,7 @@ import { insertIntoCollection } from "../utilities/MongoUtils";
 import { Character, Characteristic, Talent } from "../types";
 import microCors from "micro-cors";
 import axios from "axios";
-import { find, random, shuffle, take } from "lodash";
+import { find, random, sampleSize, shuffle, sumBy, take } from "lodash";
 import traditionList from "./constants/traditionList";
 import { ObjectId } from "mongodb";
 
@@ -15,7 +15,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       return response.status(200).end();
     }
 
-    const { level, options } = request.body.data;
+    const { level } = request.body.data;
 
     const { data: ancestries } = await axios(
       `https://sotdl-api-fetch.vercel.app/api/ancestries`
@@ -23,6 +23,10 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
     const { data: paths } = await axios(
       `https://sotdl-api-fetch.vercel.app/api/paths`
+    );
+
+    const { data: spells } = await axios(
+      `https://sotdl-api-fetch.vercel.app/api/spells`
     );
 
     const pickRandomAncestry = () => {
@@ -168,11 +172,69 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       return talentsList;
     };
 
+    const randomCharacteristics = pickRandomCharacteristics(level);
     const choices = pickRandomChoices();
 
-    const overrides = options?.rollForCharacteristics
-      ? rollForRandomCharacteristics()
-      : [];
+    const overrides = rollForRandomCharacteristics();
+
+    const characteristicsList = [
+      ...randomCharacteristics,
+      ...ancestry?.characteristics,
+      ...(novicePath !== "" ? novicePath?.characteristics : []),
+      ...(expertPath !== "" ? expertPath?.characteristics : []),
+      ...(masterPath !== "" ? masterPath?.characteristics : []),
+    ];
+
+    const sumByValue = (valueToSumBy: string) =>
+      sumBy(
+        characteristicsList.filter(
+          ({ name, level: characteristicsLevel }) =>
+            name === valueToSumBy && characteristicsLevel <= level
+        ),
+        "Value"
+      );
+
+    const pickRandomSpells = () => {
+      const pickSpell = (spellLevel: number) => {
+        const spellsToPickFrom = spells;
+      };
+
+      const will = sumByValue("Will");
+      const intellect = sumByValue("Intellect");
+      const power = sumByValue("Power");
+
+      const talentsList = [
+        ...ancestry?.talents,
+        ...(novicePath !== "" ? novicePath?.talents : []),
+        ...(expertPath !== "" ? expertPath?.talents : []),
+        ...(masterPath !== "" ? masterPath?.talents : []),
+      ].filter(
+        ({ name, description, level: talentLevel }) =>
+          (name.includes("Magic") ||
+            traditionList.some((tradition) =>
+              description.split(" ").includes(tradition)
+            )) &&
+          talentLevel <= level
+      );
+
+      // const pickTraditionList = traditionList.filter((tradition) =>
+      //   talentsList.some(({ description }) =>
+      //     description.split(" ").includes(tradition)
+      //   )
+      // )
+
+      const pickTraditionList = sampleSize(traditionList, level);
+
+      return talentsList.length === 0
+        ? []
+        : sampleSize(
+            spells.filter(
+              ({ tradition, level: spellLevel }) =>
+                pickTraditionList.includes(tradition) && spellLevel <= level - 1
+            ),
+            level * 3
+          ).map(({ name }) => name);
+    };
 
     const newCharacterData: any = {
       name: "",
@@ -181,9 +243,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       novicePath: novicePath?.name ? novicePath?.name : novicePath,
       expertPath: expertPath?.name ? expertPath?.name : expertPath,
       masterPath: masterPath?.name ? masterPath?.name : masterPath,
-      characteristics: pickRandomCharacteristics(level),
+      characteristics: randomCharacteristics,
       talents: [],
-      spells: [],
+      spells: pickRandomSpells(),
       traditions: [],
       items: {
         weapons: ["Unarmed Strike"],
@@ -219,7 +281,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       },
     };
 
-    const data = await insertIntoCollection("characters", newCharacterData);
+    // const data = await insertIntoCollection("characters", newCharacterData);
     response.status(200).send(newCharacterData);
   } catch (e) {
     console.log(e);

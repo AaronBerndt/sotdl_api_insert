@@ -217,20 +217,22 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           talentLevel <= level
       );
 
-      // const pickTraditionList = traditionList.filter((tradition) =>
-      //   talentsList.some(({ description }) =>
-      //     description.split(" ").includes(tradition)
-      //   )
-      // )
+      const pickTraditionList = traditionList.filter((tradition) =>
+        talentsList.some(({ description }) =>
+          description.split(" ").includes(tradition)
+        )
+      );
 
-      const pickTraditionList = sampleSize(traditionList, level);
+      const randomTraditionList = sampleSize(traditionList, level);
 
       return talentsList.length === 0
         ? []
         : sampleSize(
             spells.filter(
               ({ tradition, level: spellLevel }) =>
-                pickTraditionList.includes(tradition) && spellLevel <= level - 1
+                [...pickTraditionList, ...pickTraditionList].includes(
+                  tradition
+                ) && spellLevel <= level - 1
             ),
             level * 3
           ).map(({ name }) => name);

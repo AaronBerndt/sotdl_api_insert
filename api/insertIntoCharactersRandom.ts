@@ -232,7 +232,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
               ({ tradition, level: spellLevel }) =>
                 [...pickTraditionList, ...pickTraditionList].includes(
                   tradition
-                ) && spellLevel <= level - 1
+                ) && spellLevel <= power
             ),
             level * 3
           ).map(({ name }) => name);

@@ -15,7 +15,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       return response.status(200).end();
     }
 
-    const { level } = request.body.data;
+    const { level, playerId } = request.body.data;
 
     const { data: ancestries } = await axios(
       `https://sotdl-api-fetch.vercel.app/api/ancestries`
@@ -241,6 +241,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     const newCharacterData: any = {
       name: "",
       level: level,
+      playerId: playerId,
       ancestry: ancestry?.name,
       novicePath: novicePath?.name ? novicePath?.name : novicePath,
       expertPath: expertPath?.name ? expertPath?.name : expertPath,

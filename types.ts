@@ -1,6 +1,7 @@
 export type Character = {
   name: string;
   partyId: string;
+  playerId: string;
   turnType: string;
   activeCombat: string;
   level: number;

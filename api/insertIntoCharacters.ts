@@ -18,6 +18,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       name: documents.name,
       level: documents.level,
       partyId: documents.partyId,
+      playerId: documents.playerId,
       turnType: "Fast",
       activeCombat: "",
       ancestry: documents.ancestry,

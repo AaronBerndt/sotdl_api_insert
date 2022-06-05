@@ -88,7 +88,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
     await updateCollection(
       "parties",
-      { ...rest, members: [...members, _id] },
+      { ...rest, members: [...members, _id.toHexString()] },
       {
         _id: new ObjectId(party._id),
       }

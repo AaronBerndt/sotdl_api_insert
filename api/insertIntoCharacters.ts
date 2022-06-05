@@ -1,5 +1,9 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { insertIntoCollection } from "../utilities/MongoUtils";
+import {
+  fetchCollection,
+  insertIntoCollection,
+  updateCollection,
+} from "../utilities/MongoUtils";
 import { Character, Item } from "../types";
 import microCors from "micro-cors";
 import { ObjectId, ObjectID } from "mongodb";
@@ -74,8 +78,23 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       },
     };
 
-    await insertIntoCollection("characters", newCharacterData);
-    response.status(200).send(newCharacterData);
+    const result = await insertIntoCollection("characters", newCharacterData);
+    const _id = result.documents.insertedIds["0"];
+
+    const [party] = await fetchCollection("parties", {
+      _id: new ObjectId(documents.partyId),
+    });
+    const { members, ...rest } = party;
+
+    await updateCollection(
+      "parties",
+      { ...rest, members: [...members, _id] },
+      {
+        _id: new ObjectId(party._id),
+      }
+    );
+
+    response.status(200).send(result.message);
   } catch (e) {
     console.log(e);
     response.status(504).send(e);
